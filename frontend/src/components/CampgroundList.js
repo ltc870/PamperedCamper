@@ -6,9 +6,9 @@ import Spinner from "./Spinner";
 
 const CampgroundList = () => {
   const dispatch = useDispatch();
-  const { campgrounds, isLoading, isError } = useSelector(
-    (state) => state.campgrounds
-  );
+  const { isLoading, isError } = useSelector((state) => state.campgrounds);
+  const myCampgrounds = useSelector((state) => state.campgrounds.myCampgrounds);
+  console.log(myCampgrounds);
 
   useEffect(() => {
     dispatch(getMyCampgrounds());
@@ -20,7 +20,7 @@ const CampgroundList = () => {
       {isLoading && <Spinner />}
       {isError && <div className="error">Something went wrong...</div>}
       <div className="campgrounds">
-        {campgrounds.map((campground) => (
+        {myCampgrounds.map((campground) => (
           <Campground key={campground._id} campground={campground} />
         ))}
       </div>

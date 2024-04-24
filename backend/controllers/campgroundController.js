@@ -4,8 +4,10 @@ const Campground = require("../models/campgroundModel");
 const asyncHandler = require("express-async-handler");
 
 const getCampgrounds = asyncHandler(async (req, res) => {
+  const start = 0;
+  const limit = req.query.start || 5;
   const apiKey = process.env.API_KEY;
-  const baseUrl = `https://developer.nps.gov/api/v1/campgrounds?api_key=${apiKey}`;
+  const baseUrl = `https://developer.nps.gov/api/v1/campgrounds?start=${start}&limit=${limit}&api_key=${apiKey}`;
   const response = await axios.get(baseUrl, {
     headers: {
       "Content-Type": "application/json",
@@ -16,6 +18,8 @@ const getCampgrounds = asyncHandler(async (req, res) => {
   const campgrounds = response.data.data;
   res.json(campgrounds);
 });
+
+console.log(getCampgrounds);
 
 const addCampground = asyncHandler(async (req, res) => {
   // const { name, description, url, addresses, images, userId } = req.body;
@@ -43,7 +47,7 @@ const addCampground = asyncHandler(async (req, res) => {
   user.campgrounds.push(savedCampground._id);
   await user.save();
 
-  res.status(201).json({ message: "Campground added" });
+  res.status(201);
 });
 
 const getMyCampgrounds = asyncHandler(async (req, res) => {
@@ -52,8 +56,8 @@ const getMyCampgrounds = asyncHandler(async (req, res) => {
       res.status(404).json({ message: "User not found" });
       return;
     }
-    const campgrounds = await Campground.find({ user: req.user._id });
-    res.json(campgrounds);
+    const myCampgrounds = await Campground.find({ user: req.user._id });
+    res.json(myCampgrounds);
   } catch (error) {
     res.status(404).json({ message: error });
   }

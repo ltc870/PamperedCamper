@@ -3,18 +3,19 @@ import campgroundService from "./campgroundService";
 
 const initialState = {
   campgrounds: [],
+  myCampgrounds: [],
   isError: false,
   isSuccess: false,
   isLoading: false,
-  message: "",
+  // message: "",
 };
 
 export const getCampgrounds = createAsyncThunk(
   "campgrounds/getAll",
-  async (_, thunkAPI) => {
+  async (end = 4, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user.token;
-      return await campgroundService.getCampgrounds(token);
+      return await campgroundService.getCampgrounds(token, end);
     } catch (error) {
       const message =
         (error.response &&
@@ -81,13 +82,18 @@ export const deleteCampground = createAsyncThunk(
   }
 );
 
+export const clearCampgrounds = () => ({
+  type: "campgrounds/clear",
+});
+
 export const campgroundSlice = createSlice({
   name: "campgrounds",
   initialState,
   reducers: {
     reset: (state) => {
       state.campgrounds = [];
-      state.message = "";
+      state.myCampgrounds = [];
+      // state.message = "";
     },
   },
   extraReducers: (builder) => {
@@ -98,7 +104,7 @@ export const campgroundSlice = createSlice({
       .addCase(getCampgrounds.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.campgrounds = action.payload;
+        state.campgrounds = [...state.campgrounds, ...action.payload];
       })
       .addCase(getCampgrounds.rejected, (state, action) => {
         state.isLoading = false;
@@ -124,7 +130,7 @@ export const campgroundSlice = createSlice({
       .addCase(getMyCampgrounds.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.campgrounds = action.payload;
+        state.myCampgrounds = action.payload;
       })
       .addCase(getMyCampgrounds.rejected, (state, action) => {
         state.isLoading = false;
@@ -137,7 +143,7 @@ export const campgroundSlice = createSlice({
       .addCase(deleteCampground.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.campgrounds = state.campgrounds.filter(
+        state.campgrounds = state.myCampgrounds.filter(
           (campground) => campground._id !== action.payload._id
         );
       })
